@@ -101,16 +101,19 @@ interface Props {
   locales: LocaleInfo[];
   /** Current locale code */
   currentLocale: string;
-  /** Current page path (without locale prefix) */
+  /** Current page path (without locale prefix and without base) */
   currentPath: string;
   /** Default locale code */
   defaultLocale: string;
   /** Whether to prefix the default locale in URLs */
   prefixDefaultLocale?: boolean;
+  /** Base URL for the site (e.g., '/jet-w.astro-blog') */
+  base?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   prefixDefaultLocale: false,
+  base: '/',
 });
 
 const isOpen = ref(false);
@@ -138,23 +141,32 @@ function closeDropdown() {
 }
 
 function getLocalizedUrl(targetLocale: string): string {
-  // Normalize the path
-  let basePath = props.currentPath;
-  if (!basePath.startsWith('/')) {
-    basePath = '/' + basePath;
+  // Normalize the current path (without base and without locale)
+  let pagePath = props.currentPath;
+  if (!pagePath.startsWith('/')) {
+    pagePath = '/' + pagePath;
   }
 
-  // If target is default locale and prefix is not required
-  if (targetLocale === props.defaultLocale && !props.prefixDefaultLocale) {
-    return basePath === '/' ? '/' : basePath;
+  // Normalize base URL - remove trailing slash
+  const baseUrl = props.base?.replace(/\/$/, '') || '';
+
+  // Build locale prefix
+  let localePrefix = '';
+  if (targetLocale !== props.defaultLocale || props.prefixDefaultLocale) {
+    localePrefix = `/${targetLocale}`;
   }
 
-  // Add locale prefix
-  if (basePath === '/') {
-    return `/${targetLocale}`;
+  // Combine: base + locale + path
+  if (pagePath === '/') {
+    // Home page
+    if (localePrefix) {
+      return baseUrl ? `${baseUrl}${localePrefix}/` : `${localePrefix}/`;
+    }
+    return baseUrl ? `${baseUrl}/` : '/';
   }
 
-  return `/${targetLocale}${basePath}`;
+  // Other pages
+  return `${baseUrl}${localePrefix}${pagePath}`;
 }
 
 // Close dropdown when clicking outside

@@ -54,10 +54,19 @@ const siteTitle = localeSiteConfig.title || siteConfig.title;
 const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
 const fullImage = new URL(image, Astro.site);
 
+// Get base URL for prefixing links
+const base = import.meta.env.BASE_URL;
+
 // Get alternate links for SEO (hreflang)
-const baseUrl = Astro.site?.toString() || '';
+// We need to pass the pathname without base URL to getAlternateLinks
+// Then the baseUrl for combining should include the base path
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || '';
+const baseUrlWithPath = base && base !== '/' ? `${siteUrl}${base.replace(/\/$/, '')}` : siteUrl;
+const pathnameWithoutBase = base && base !== '/'
+  ? Astro.url.pathname.replace(new RegExp(`^${base.replace(/\/$/, '')}`), '') || '/'
+  : Astro.url.pathname;
 const alternateLinks = isMultiLanguageEnabled(i18nConfig)
-  ? getAlternateLinks(Astro.url.pathname, baseUrl, i18nConfig)
+  ? getAlternateLinks(pathnameWithoutBase, baseUrlWithPath, i18nConfig)
   : [];
 
 // Get locale prefix for RSS link
@@ -70,9 +79,6 @@ const faviconSvgExists = fs.existsSync(path.join(publicDir, 'favicon.svg'));
 const faviconIcoExists = fs.existsSync(path.join(publicDir, 'favicon.ico'));
 const faviconHref = faviconSvgExists ? '/favicon.svg' : faviconIcoExists ? '/favicon.ico' : siteConfig.avatar;
 const faviconType = faviconSvgExists ? 'image/svg+xml' : faviconIcoExists ? 'image/x-icon' : 'image/jpeg';
-
-// Get base URL for prefixing links
-const base = import.meta.env.BASE_URL;
 ---
 
 <!DOCTYPE html>

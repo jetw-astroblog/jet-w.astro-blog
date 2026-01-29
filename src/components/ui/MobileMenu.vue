@@ -71,7 +71,7 @@
             <a
               v-for="item in navigation"
               :key="item.href"
-              :href="item.href"
+              :href="withBase(item.href)"
               @click="isOpen = false"
               class="flex items-center px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               :class="{ 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400': isActive(item.href) }"
@@ -98,16 +98,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, withDefaults } from 'vue'
 import type { NavigationItem } from '@jet-w/astro-blog/types'
 import SearchBox from './SearchBox.vue'
 import ThemeToggle from './ThemeToggle.vue'
 
 interface Props {
   navigation: NavigationItem[]
+  /** Base URL for the site (e.g., '/jet-w.astro-blog') */
+  base?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  base: '/',
+})
+
+// Helper function to add base URL to paths
+function withBase(path: string): string {
+  const baseUrl = props.base?.replace(/\/$/, '') || '';
+  if (!baseUrl || baseUrl === '') {
+    return path;
+  }
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  if (normalizedPath === '/') {
+    return `${baseUrl}/`;
+  }
+  return `${baseUrl}${normalizedPath}`;
+}
 const isOpen = ref(false)
 const currentPath = ref('')
 const isMounted = ref(false)
