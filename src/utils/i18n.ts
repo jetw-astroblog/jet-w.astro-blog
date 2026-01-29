@@ -353,15 +353,38 @@ export function isMultiLanguageEnabled(
 /**
  * Get prefix for a locale in routes
  * Returns empty string for default locale if prefixDefaultLocale is false
+ * If base is provided, it will be prepended to the locale prefix
+ *
+ * @example
+ * // Without base
+ * getLocalePrefix('en', config) // '' (for default locale)
+ * getLocalePrefix('zh-CN', config) // '/zh-CN'
+ *
+ * // With base '/my-blog'
+ * getLocalePrefix('en', config, '/my-blog') // '/my-blog'
+ * getLocalePrefix('zh-CN', config, '/my-blog') // '/my-blog/zh-CN'
  */
 export function getLocalePrefix(
   locale: string,
-  config: I18nConfig = defaultI18nConfig
+  config: I18nConfig = defaultI18nConfig,
+  base?: string
 ): string {
-  if (locale === config.defaultLocale && !config.routing.prefixDefaultLocale) {
-    return '';
+  // Normalize base: remove trailing slash
+  const normalizedBase = base ? base.replace(/\/$/, '') : '';
+
+  // Get locale prefix
+  let localePrefix = '';
+  if (locale !== config.defaultLocale || config.routing.prefixDefaultLocale) {
+    localePrefix = `/${locale}`;
   }
-  return `/${locale}`;
+
+  // If base is just '/' or empty, return locale prefix as before
+  if (!normalizedBase || normalizedBase === '') {
+    return localePrefix;
+  }
+
+  // Combine base and locale prefix
+  return `${normalizedBase}${localePrefix}`;
 }
 
 /**
@@ -404,6 +427,62 @@ export function filterPostsByLocale<T extends { id: string }>(
     const prefix = contentPathPrefix.toLowerCase();
     return postPath.startsWith(prefix + '/') || postPath === prefix;
   });
+}
+
+/**
+ * Add base URL prefix to a path
+ * This is used when the site is deployed to a subdirectory (e.g., /jet-w.astro-blog/)
+ *
+ * @example
+ * // If BASE_URL is '/jet-w.astro-blog'
+ * withBase('/posts') // '/jet-w.astro-blog/posts'
+ * withBase('/') // '/jet-w.astro-blog/'
+ *
+ * // If BASE_URL is '/'
+ * withBase('/posts') // '/posts'
+ */
+export function withBase(path: string, base?: string): string {
+  // Get base URL - in Astro components, pass import.meta.env.BASE_URL
+  // Remove trailing slash from base
+  const baseUrl = (base || '/').replace(/\/$/, '');
+
+  // If base is empty or just '/', return path as-is
+  if (!baseUrl || baseUrl === '') {
+    return path;
+  }
+
+  // Ensure path starts with /
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+  // If path is just '/', return base with trailing slash
+  if (normalizedPath === '/') {
+    return `${baseUrl}/`;
+  }
+
+  return `${baseUrl}${normalizedPath}`;
+}
+
+/**
+ * Remove base URL prefix from a path
+ * Useful for getting the actual path without base prefix
+ *
+ * @example
+ * // If BASE_URL is '/jet-w.astro-blog'
+ * removeBase('/jet-w.astro-blog/posts', '/jet-w.astro-blog') // '/posts'
+ */
+export function removeBase(path: string, base?: string): string {
+  const baseUrl = (base || '/').replace(/\/$/, '');
+
+  if (!baseUrl || baseUrl === '') {
+    return path;
+  }
+
+  if (path.startsWith(baseUrl)) {
+    const rest = path.slice(baseUrl.length);
+    return rest || '/';
+  }
+
+  return path;
 }
 
 // Re-export types and config functions

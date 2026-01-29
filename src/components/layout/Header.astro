@@ -12,6 +12,7 @@ import {
   getLocaleConfig,
   removeLocalePrefix,
   isMultiLanguageEnabled,
+  withBase,
 } from '../../utils/i18n';
 
 export interface Props {
@@ -40,16 +41,19 @@ const localesForSwitcher = i18nConfig.locales.map(l => ({
   code: l.code,
   name: l.name,
 }));
+
+// Get base URL for prefixing links
+const base = import.meta.env.BASE_URL;
 ---
 
 <header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700">
   <div class="container mx-auto px-4">
     <nav class="flex items-center justify-between h-16">
       <div class="flex items-center space-x-4">
-        <a href="/" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+        <a href={withBase('/', base)} class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
           {(localeSiteConfig.avatar || siteConfig.avatar) && (
             <img
-              src={localeSiteConfig.avatar || siteConfig.avatar}
+              src={withBase(localeSiteConfig.avatar || siteConfig.avatar || '', base)}
               alt={localeSiteConfig.title || siteConfig.title}
               class="w-8 h-8 rounded-full"
             />
@@ -70,9 +74,9 @@ const localesForSwitcher = i18nConfig.locales.map(l => ({
       <div class="hidden md:flex items-center space-x-8">
         {menu.map((item) => (
           <a
-            href={item.href}
+            href={withBase(item.href, base)}
             class={`text-sm font-medium transition-colors hover:text-primary-500 ${
-              currentPath === item.href || (item.href !== '/' && currentPath.startsWith(item.href))
+              currentPath === withBase(item.href, base) || (item.href !== '/' && currentPath.startsWith(withBase(item.href, base)))
                 ? 'text-primary-500'
                 : 'text-slate-700 dark:text-slate-300'
             }`}

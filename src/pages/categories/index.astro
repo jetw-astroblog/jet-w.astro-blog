@@ -10,7 +10,8 @@ const i18nConfig = virtualI18nConfig || defaultI18nConfig;
 const currentLocale = getLocaleFromPath(Astro.url.pathname, i18nConfig);
 const localeConfig = getLocaleConfig(currentLocale, i18nConfig);
 const ui = localeConfig.ui;
-const localePrefix = getLocalePrefix(currentLocale, i18nConfig);
+const base = import.meta.env.BASE_URL;
+const localePrefix = getLocalePrefix(currentLocale, i18nConfig, base);
 
 // 从文章集合动态获取所有分类
 const allPostsCollection = await getCollection('posts', ({ data }) => !data.draft);

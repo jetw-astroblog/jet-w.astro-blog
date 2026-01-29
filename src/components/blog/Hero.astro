@@ -3,7 +3,7 @@ import { siteConfig } from '@jet-w/astro-blog/config';
 import type { I18nConfig } from '../../config/i18n';
 import { defaultI18nConfig } from '../../config/i18n';
 import { i18nConfig as virtualI18nConfig } from 'virtual:astro-blog-i18n';
-import { getLocaleFromPath, getLocaleConfig } from '../../utils/i18n';
+import { getLocaleFromPath, getLocaleConfig, getLocalePrefix, withBase } from '../../utils/i18n';
 
 export interface Props {
   i18nConfig?: I18nConfig;
@@ -15,6 +15,10 @@ const { i18nConfig = virtualI18nConfig || defaultI18nConfig } = Astro.props;
 const currentLocale = getLocaleFromPath(Astro.url.pathname, i18nConfig);
 const localeConfig = getLocaleConfig(currentLocale, i18nConfig);
 const ui = localeConfig.ui;
+
+// Get base URL for prefixing links
+const base = import.meta.env.BASE_URL;
+const localePrefix = getLocalePrefix(currentLocale, i18nConfig, base);
 ---
 
 <section class="py-16 mb-16">
@@ -23,7 +27,7 @@ const ui = localeConfig.ui;
     {siteConfig.avatar && (
       <div class="mb-8">
         <img
-          src={siteConfig.avatar}
+          src={withBase(siteConfig.avatar, base)}
           alt={siteConfig.author}
           class="w-32 h-32 rounded-full mx-auto shadow-lg"
         />
@@ -101,7 +105,7 @@ const ui = localeConfig.ui;
     <!-- 行动按钮 -->
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <a
-        href="/posts"
+        href={`${localePrefix}/posts`}
         class="btn-primary inline-flex items-center space-x-2"
       >
         <span>{ui.browsePosts}</span>
@@ -111,7 +115,7 @@ const ui = localeConfig.ui;
       </a>
 
       <a
-        href="/about"
+        href={`${localePrefix}/about`}
         class="btn-secondary inline-flex items-center space-x-2"
       >
         <span>{ui.aboutMe}</span>

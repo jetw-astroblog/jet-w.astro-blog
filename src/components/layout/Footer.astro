@@ -25,7 +25,8 @@ function getIcon(link: { type: string; icon?: string }): string {
 }
 
 // Get locale prefix for RSS link
-const localePrefix = getLocalePrefix(currentLocale, i18nConfig);
+const base = import.meta.env.BASE_URL;
+const localePrefix = getLocalePrefix(currentLocale, i18nConfig, base);
 const rssUrl = localeFooterConfig.rssUrl || footerConfig.rssUrl || `${localePrefix}/rss.xml`;
 
 const copyright = (localeFooterConfig.copyright || footerConfig.copyright)

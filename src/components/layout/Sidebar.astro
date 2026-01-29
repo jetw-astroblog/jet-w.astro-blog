@@ -23,7 +23,8 @@ const { currentPath = Astro.url.pathname, i18nConfig = defaultI18nConfig } = Ast
 const currentLocale = getLocaleFromPath(currentPath, i18nConfig);
 const localeConfig = getLocaleConfig(currentLocale, i18nConfig);
 const ui = localeConfig.ui;
-const localePrefix = getLocalePrefix(currentLocale, i18nConfig);
+const base = import.meta.env.BASE_URL;
+const localePrefix = getLocalePrefix(currentLocale, i18nConfig, base);
 
 // Get locale-specific sidebar config (already merged with defaults in getLocaleConfig)
 const sidebarConfig = localeConfig.sidebar;

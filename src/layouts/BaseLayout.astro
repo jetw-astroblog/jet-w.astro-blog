@@ -10,6 +10,7 @@ import {
   getAlternateLinks,
   getTextDirection,
   isMultiLanguageEnabled,
+  withBase,
   t,
   type I18nConfig,
 } from '../utils/i18n';
@@ -69,6 +70,9 @@ const faviconSvgExists = fs.existsSync(path.join(publicDir, 'favicon.svg'));
 const faviconIcoExists = fs.existsSync(path.join(publicDir, 'favicon.ico'));
 const faviconHref = faviconSvgExists ? '/favicon.svg' : faviconIcoExists ? '/favicon.ico' : siteConfig.avatar;
 const faviconType = faviconSvgExists ? 'image/svg+xml' : faviconIcoExists ? 'image/x-icon' : 'image/jpeg';
+
+// Get base URL for prefixing links
+const base = import.meta.env.BASE_URL;
 ---
 
 <!DOCTYPE html>
@@ -77,7 +81,7 @@ const faviconType = faviconSvgExists ? 'image/svg+xml' : faviconIcoExists ? 'ima
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type={faviconType} href={faviconHref} />
+    <link rel="icon" type={faviconType} href={withBase(faviconHref || '', base)} />
     <meta name="generator" content={Astro.generator} />
 
     <!-- SEO -->
@@ -115,7 +119,7 @@ const faviconType = faviconSvgExists ? 'image/svg+xml' : faviconIcoExists ? 'ima
     <meta name="twitter:image" content={fullImage} />
 
     <!-- RSS -->
-    <link rel="alternate" type="application/rss+xml" title={siteTitle} href={rssPath} />
+    <link rel="alternate" type="application/rss+xml" title={siteTitle} href={withBase(rssPath, base)} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -158,10 +162,10 @@ const faviconType = faviconSvgExists ? 'image/svg+xml' : faviconIcoExists ? 'ima
     </div>
 
     <!-- Mermaid -->
-    <script src="/js/mermaid-container.js" is:inline></script>
+    <script src={withBase('/js/mermaid-container.js', base)} is:inline></script>
 
     <!-- Tabs -->
-    <script src="/js/tabs-init.js" is:inline></script>
+    <script src={withBase('/js/tabs-init.js', base)} is:inline></script>
 
     <!-- Store i18n data for client-side scripts -->
     <script is:inline define:vars={{ locale: currentLocale, uiTranslations: ui }}>

@@ -1,4 +1,6 @@
 ---
+import { withBase } from '../../utils/i18n';
+
 export interface Props {
   post: {
     slug: string;
@@ -30,6 +32,8 @@ const {
   ui = { readMore: '阅读更多', minuteRead: '分钟' }
 } = Astro.props;
 
+const base = import.meta.env.BASE_URL;
+
 const formattedDate = post.pubDate
   ? new Intl.DateTimeFormat(locale, {
       year: 'numeric',
@@ -45,10 +49,10 @@ const tagToSlug = (tag: string) => tag.toLowerCase().replace(/\s+/g, '-');
 // 将分类名转换为 slug 格式
 const categoryToSlug = (category: string) => category.toLowerCase().replace(/\s+/g, '-');
 
-// Build URLs with locale prefix
-const postUrl = `${localePrefix}/posts/${post.slug}`;
-const tagUrl = (tag: string) => `${localePrefix}/tags/${tagToSlug(tag)}`;
-const categoryUrl = (category: string) => `${localePrefix}/categories/${categoryToSlug(category)}`;
+// Build URLs with locale prefix and base URL
+const postUrl = withBase(`${localePrefix}/posts/${post.slug}`, base);
+const tagUrl = (tag: string) => withBase(`${localePrefix}/tags/${tagToSlug(tag)}`, base);
+const categoryUrl = (category: string) => withBase(`${localePrefix}/categories/${categoryToSlug(category)}`, base);
 ---
 
 <article class={`group card hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 ${isHorizontal ? 'flex gap-6 items-center' : 'block'}`}>
