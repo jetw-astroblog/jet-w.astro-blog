@@ -39,6 +39,9 @@ jobs:
         run: |-
           cd templates/default && npm install && npm run build
 
+      - name: Add .nojekyll file
+        run: touch templates/default/dist/.nojekyll
+
       - name: Deploy Docs
         uses: JamesIves/github-pages-deploy-action@v4
         with:
