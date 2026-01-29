@@ -24,6 +24,14 @@
     "./utils/sidebar": {
       "types": "./dist/utils/sidebar.d.ts",
       "import": "./dist/utils/sidebar.js"
+    },
+    "./utils/i18n": {
+      "types": "./dist/utils/i18n.d.ts",
+      "import": "./dist/utils/i18n.js"
+    },
+    "./utils/useI18n": {
+      "types": "./dist/utils/useI18n.d.ts",
+      "import": "./dist/utils/useI18n.js"
     }
   },
   "files": [

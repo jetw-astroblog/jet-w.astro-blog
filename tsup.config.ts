@@ -6,6 +6,8 @@ export default defineConfig({
     'config/index': 'src/config/index.ts',
     'types/index': 'src/types/index.ts',
     'utils/sidebar': 'src/utils/sidebar.ts',
+    'utils/i18n': 'src/utils/i18n.ts',
+    'utils/useI18n': 'src/utils/useI18n.ts',
     'integration': 'src/integration.ts',
   },
   format: ['esm'],
