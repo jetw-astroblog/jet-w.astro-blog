@@ -44,7 +44,8 @@
     "src/types",
     "src/utils",
     "src/config",
-    "templates"
+    "templates",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
