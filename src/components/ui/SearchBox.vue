@@ -36,7 +36,7 @@
             @click="handleResultClick"
           >
             <h4 class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1" v-html="highlightText(result.title)"></h4>
-            <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2" v-html="highlightText(result.description)"></p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2" v-html="highlightText(getMatchedContent(result))"></p>
             <div class="flex flex-wrap gap-1 mt-2">
               <span
                 v-for="tag in result.tags.slice(0, 3)"
@@ -136,6 +136,38 @@ const handleResultClick = () => {
   showResults.value = false
   searchQuery.value = ''
   searchResults.value = []
+}
+
+// 获取匹配的内容片段，优先显示匹配到的内容上下文
+const getMatchedContent = (result: SearchResult): string => {
+  const query = searchQuery.value.toLowerCase()
+
+  // 如果标题或描述匹配，优先显示描述
+  if (result.title.toLowerCase().includes(query) || result.description.toLowerCase().includes(query)) {
+    return result.description || result.content.substring(0, 150)
+  }
+
+  // 如果内容匹配，显示匹配位置的上下文
+  if (result.content) {
+    const contentLower = result.content.toLowerCase()
+    const matchIndex = contentLower.indexOf(query)
+
+    if (matchIndex !== -1) {
+      // 提取匹配位置前后的上下文
+      const contextStart = Math.max(0, matchIndex - 50)
+      const contextEnd = Math.min(result.content.length, matchIndex + query.length + 100)
+      let snippet = result.content.substring(contextStart, contextEnd)
+
+      // 添加省略号
+      if (contextStart > 0) snippet = '...' + snippet
+      if (contextEnd < result.content.length) snippet = snippet + '...'
+
+      return snippet
+    }
+  }
+
+  // 默认返回描述或内容开头
+  return result.description || result.content.substring(0, 150)
 }
 
 const highlightText = (text: string) => {
