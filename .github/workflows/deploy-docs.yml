@@ -56,7 +56,7 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{secrets.API_TOKEN_KEY}}
         with:
-          source-directory: 'dist'
+          source-directory: 'templates/default/dist'
           destination-github-username: 'jetw-astroblog'
           destination-repository-name: 'jetw-astroblog.github.io'
           user-email: unisa.dady@gmail.com
