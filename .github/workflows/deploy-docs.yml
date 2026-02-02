@@ -34,17 +34,31 @@ jobs:
       - name: Build Blog
         env:
           NODE_OPTIONS: --max_old_space_size=8692
-          SITE_URL: https://jet-w.github.io
-          BASE_PATH: /jet-w.astro-blog
+          SITE_URL: https://jetw-astroblog.github.io
+          BASE_PATH: /
         run: |-
           cd templates/default && npm install && npm run build
 
       - name: Add .nojekyll file
         run: touch templates/default/dist/.nojekyll
 
-      - name: Deploy Docs
-        uses: JamesIves/github-pages-deploy-action@v4
+      # - name: Deploy Docs
+      #   uses: JamesIves/github-pages-deploy-action@v4
+      #   with:
+      #     # Deploy Docs
+      #     branch: gh-pages
+      #     folder: templates/default/dist
+      
+      #- name: Deploy Docs
+      #  uses: JamesIves/github-pages-deploy-action@v4
+      - name: Push release to Blog repository
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{secrets.API_TOKEN_KEY}}
         with:
-          # Deploy Docs
-          branch: gh-pages
-          folder: templates/default/dist
+          source-directory: 'dist'
+          destination-github-username: 'jetw-astroblog'
+          destination-repository-name: 'jetw-astroblog.github.io'
+          user-email: unisa.dady@gmail.com
+          target-branch: gh-pages
+          target-directory: /
