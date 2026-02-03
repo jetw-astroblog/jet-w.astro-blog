@@ -12,9 +12,9 @@ import type { SiteConfig } from '@jet-w/astro-blog';
 export const siteConfig: SiteConfig = {
   title: 'My Astro Blog22',
   description: '',
-  author: 'Author',
+  author: '',
   email: 'email@example.com',
-  avatar: '/images/avatar.svg',
+  avatar: '/images/avatar.png',
   social: {
     github: 'https://github.com/username',
     twitter: '',

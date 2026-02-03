@@ -7,6 +7,10 @@ import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Load environment variables from .env file
 const { SITE_URL, BASE_PATH } = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
@@ -79,8 +83,15 @@ export default defineConfig({
   },
   vite: {
     resolve: {
+      preserveSymlinks: true,
+      alias: {
+        '@astrojs/rss': path.resolve(__dirname, 'node_modules/@astrojs/rss'),
+        '@jet-w/astro-blog/config': path.resolve(__dirname, 'src/config/index.ts'),
+        '@': path.resolve(__dirname, 'node_modules/@jet-w/astro-blog/src'),
+        '@blog': path.resolve(__dirname, 'src'),
+      },
       // Help Vite resolve peer dependencies from injected routes
       dedupe: ['@astrojs/rss', 'astro']
-    }
-  }
+    },
+  },
 });

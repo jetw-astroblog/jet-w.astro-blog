@@ -9,7 +9,7 @@ export const siteConfig: SiteConfig = {
   description: '',
   author: 'Author',
   email: '',
-  avatar: '/images/avatar.svg',
+  avatar: '/images/avatar.png',
   social: {
     github: '',
     twitter: '',

@@ -12,11 +12,8 @@
  * ]} />
  */
 
-import {
-  socialLinks as configSocialLinks,
-  defaultIcons,
-  type SocialLink
-} from '@jet-w/astro-blog/config';
+import { socialLinks as virtualSocialLinks, defaultIcons } from 'virtual:astro-blog-social';
+import { defaultSocialLinks, type SocialLink } from '../../config/social';
 
 export interface Props {
   links?: SocialLink[];
@@ -24,31 +21,42 @@ export interface Props {
 
 const { links } = Astro.props;
 
-// 如果没有传入 links，则使用配置文件中的社交链接
-const socialLinksData: SocialLink[] = links || configSocialLinks;
+// Get social links from virtual module or fallback to defaults
+const socialLinks = virtualSocialLinks || defaultSocialLinks;
 
-/**
- * 获取图标路径，优先使用自定义icon，否则使用默认图标
- */
-function getIcon(link: SocialLink): string {
-  return link.icon || defaultIcons[link.type] || '';
-}
+// 如果没有传入 links，则使用配置中的社交链接
+const socialLinksData: SocialLink[] = links || socialLinks;
+
+// Helper to check if icon type is stroke-based (like email)
+const isStrokeIcon = (type: string) => type === 'email';
 ---
 
 {socialLinksData.length > 0 && (
   <div class="flex justify-center space-x-6 mt-8">
-    {socialLinksData.map((link) => (
-      <a
-        href={link.url}
-        target={link.type === 'email' ? undefined : '_blank'}
-        rel={link.type === 'email' ? undefined : 'noopener noreferrer'}
-        class="text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors"
-        aria-label={link.label || link.type}
-      >
-        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-          <path d={getIcon(link)} />
-        </svg>
-      </a>
-    ))}
+    {socialLinksData.map((link) => {
+      const iconPath = link.icon || defaultIcons[link.type] || '';
+      const isStroke = isStrokeIcon(link.type);
+      const isExternal = !link.url.startsWith('mailto:');
+
+      return (
+        <a
+          href={link.url}
+          target={isExternal ? "_blank" : undefined}
+          rel={isExternal ? "noopener noreferrer" : undefined}
+          class="text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors"
+          aria-label={link.label || link.type}
+        >
+          {isStroke ? (
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={iconPath} />
+            </svg>
+          ) : (
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+              <path d={iconPath} />
+            </svg>
+          )}
+        </a>
+      );
+    })}
   </div>
 )}

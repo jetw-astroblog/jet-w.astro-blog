@@ -11,10 +11,16 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import type { I18nConfig } from './config/i18n';
 import { defaultI18nConfig } from './config/i18n';
+import type { SocialLink } from './config/social';
+import { defaultSocialLinks, defaultIcons } from './config/social';
 
 // Virtual module ID for i18n config
 const VIRTUAL_I18N_MODULE_ID = 'virtual:astro-blog-i18n';
 const RESOLVED_VIRTUAL_I18N_MODULE_ID = '\0' + VIRTUAL_I18N_MODULE_ID;
+
+// Virtual module ID for social config
+const VIRTUAL_SOCIAL_MODULE_ID = 'virtual:astro-blog-social';
+const RESOLVED_VIRTUAL_SOCIAL_MODULE_ID = '\0' + VIRTUAL_SOCIAL_MODULE_ID;
 
 export interface AstroBlogIntegrationOptions {
   /**
@@ -34,6 +40,11 @@ export interface AstroBlogIntegrationOptions {
    * i18n configuration for multi-language support
    */
   i18n?: I18nConfig;
+
+  /**
+   * Social links configuration
+   */
+  socialLinks?: SocialLink[];
 }
 
 const defaultOptions: AstroBlogIntegrationOptions = {
@@ -70,23 +81,31 @@ export function astroBlogIntegration(
   };
 
   const i18nConfig = options.i18n || defaultI18nConfig;
+  const socialLinksConfig = options.socialLinks || defaultSocialLinks;
 
   // Get the directory where the integration is located
   const currentDir = path.dirname(fileURLToPath(import.meta.url));
   // Pages are in src/pages relative to dist
   const pagesDir = path.resolve(currentDir, '../src/pages');
 
-  // Create Vite plugin for virtual module
-  const vitePluginI18nConfig = (): Plugin => ({
-    name: 'astro-blog-i18n-config',
+  // Create Vite plugin for virtual modules
+  const vitePluginVirtualModules = (): Plugin => ({
+    name: 'astro-blog-virtual-modules',
     resolveId(id) {
       if (id === VIRTUAL_I18N_MODULE_ID) {
         return RESOLVED_VIRTUAL_I18N_MODULE_ID;
+      }
+      if (id === VIRTUAL_SOCIAL_MODULE_ID) {
+        return RESOLVED_VIRTUAL_SOCIAL_MODULE_ID;
       }
     },
     load(id) {
       if (id === RESOLVED_VIRTUAL_I18N_MODULE_ID) {
         return `export const i18nConfig = ${JSON.stringify(i18nConfig)};`;
+      }
+      if (id === RESOLVED_VIRTUAL_SOCIAL_MODULE_ID) {
+        return `export const socialLinks = ${JSON.stringify(socialLinksConfig)};
+export const defaultIcons = ${JSON.stringify(defaultIcons)};`;
       }
     },
   });
@@ -97,10 +116,10 @@ export function astroBlogIntegration(
       'astro:config:setup': ({ injectRoute, logger, updateConfig }) => {
         logger.info('Injecting @jet-w/astro-blog routes...');
 
-        // Add Vite plugin for virtual i18n module
+        // Add Vite plugin for virtual modules
         updateConfig({
           vite: {
-            plugins: [vitePluginI18nConfig()],
+            plugins: [vitePluginVirtualModules()],
           },
         });
 
@@ -212,5 +231,6 @@ export function astroBlogIntegration(
 
 export default astroBlogIntegration;
 
-// Re-export i18n types for convenience
+// Re-export types for convenience
 export type { I18nConfig } from './config/i18n';
+export type { SocialLink } from './config/social';
