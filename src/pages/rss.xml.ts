@@ -17,12 +17,17 @@ export async function GET(context: { site: URL; request: Request }) {
   // Use locale-specific site config
   const localeSiteConfig = localeConfig.site;
 
-  // Sort by date, newest first
+  // Sort by pubDate, newest first
   const sortedPosts = posts.sort((a, b) => {
-    const dateA = new Date(a.data.date || 0);
-    const dateB = new Date(b.data.date || 0);
-    return dateB.getTime() - dateA.getTime();
+    const dateA = a.data.pubDate?.getTime() ?? 0;
+    const dateB = b.data.pubDate?.getTime() ?? 0;
+    return dateB - dateA;
   });
+
+  // Get the latest post date for lastBuildDate
+  const latestPostDate = sortedPosts.length > 0 && sortedPosts[0].data.pubDate
+    ? sortedPosts[0].data.pubDate
+    : new Date();
 
   return rss({
     title: localeSiteConfig.title || siteConfig.title,
@@ -30,11 +35,11 @@ export async function GET(context: { site: URL; request: Request }) {
     site: context.site,
     items: sortedPosts.map((post) => ({
       title: post.data.title,
-      pubDate: post.data.date ? new Date(post.data.date) : new Date(),
+      pubDate: post.data.pubDate ?? new Date(),
       description: post.data.description || '',
       link: `${localePrefix}/posts/${post.id.toLowerCase()}/`,
       categories: [...(post.data.categories || []), ...(post.data.tags || [])]
     })),
-    customData: `<language>${localeConfig.locale.htmlLang}</language>`
+    customData: `<language>${localeConfig.locale.htmlLang}</language><lastBuildDate>${latestPostDate.toUTCString()}</lastBuildDate>`
   });
 }

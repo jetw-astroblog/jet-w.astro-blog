@@ -192,9 +192,9 @@ const slidesData = isSlides && post?.body ? parseSlides(post.body) : [];
 // 计算阅读时间（简单估算）
 const readingTime = post ? Math.ceil((post.body?.length || 0) / 1000) : 0;
 
-// 格式化日期
+// 格式化日期（根据当前语言自动变化）
 const formatDate = (date: Date) => {
-  return new Intl.DateTimeFormat('zh-CN', {
+  return new Intl.DateTimeFormat(localeConfig.locale.dateLocale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

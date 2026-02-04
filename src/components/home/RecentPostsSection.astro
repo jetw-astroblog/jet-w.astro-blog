@@ -68,7 +68,7 @@ const postsUrl = `${localePrefix}/posts`;
 
   <div class="space-y-6">
     {recentPosts.map((post) => (
-      <PostCard post={post} layout="horizontal" localePrefix={localePrefix} />
+      <PostCard post={post} layout="horizontal" localePrefix={localePrefix} locale={localeConfig.locale.dateLocale} ui={{ readMore: ui.readMore, minuteRead: ui.minuteRead }} />
     ))}
   </div>
 </section>

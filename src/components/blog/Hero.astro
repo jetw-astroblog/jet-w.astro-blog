@@ -20,6 +20,7 @@ const pathWithoutBase = removeBase(Astro.url.pathname, base);
 // Get current locale from URL (use path without base)
 const currentLocale = getLocaleFromPath(pathWithoutBase, i18nConfig);
 const localeConfig = getLocaleConfig(currentLocale, i18nConfig);
+const localeSiteConfig = localeConfig.site;
 const ui = localeConfig.ui;
 const localePrefix = getLocalePrefix(currentLocale, i18nConfig, base);
 
@@ -40,11 +41,11 @@ const isStrokeIcon = (type: string) => type === 'email';
 <section class="py-16 mb-16 relative">
   <div class="text-center">
     <!-- 头像 -->
-    {siteConfig.avatar && (
+    {(localeSiteConfig.avatar || siteConfig.avatar) && (
       <div class="mb-8">
         <img
-          src={withBase(siteConfig.avatar, base)}
-          alt={siteConfig.author}
+          src={withBase(localeSiteConfig.avatar || siteConfig.avatar || '', base)}
+          alt={localeSiteConfig.author || siteConfig.author}
           class="w-32 h-32 rounded-full mx-auto shadow-lg"
         />
       </div>
