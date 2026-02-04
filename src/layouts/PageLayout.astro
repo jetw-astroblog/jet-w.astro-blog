@@ -96,7 +96,7 @@ const ui = localeConfig.ui;
       </aside>
     )}
 
-    <div class={`flex-1 transition-all duration-300 ${showSidebar ? 'lg:px-8' : ''} ${showToc ? 'xl:pr-64' : ''} relative`} data-main-content>
+    <div class={`flex-1 min-w-0 transition-all duration-300 ${showSidebar ? 'lg:px-8' : ''} ${showToc ? 'xl:pr-64' : ''} relative`} data-main-content>
       {showSidebar && (
         <div class="hidden lg:block fixed top-20 left-1 z-40 transition-all duration-300" data-sidebar-toggle>
           <SidebarToggle client:load />
@@ -116,7 +116,7 @@ const ui = localeConfig.ui;
         </button>
       )}
 
-      <div class="container mx-auto px-4 py-8 max-w-4xl">
+      <div class="w-full min-w-0 px-4 py-8">
         <slot />
       </div>
     </div>

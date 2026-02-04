@@ -49,7 +49,7 @@
         >
         <div class="p-6">
           <!-- 头部 -->
-          <div class="flex items-center justify-between mb-8">
+          <div class="flex items-center justify-between mb-6">
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">菜单</h2>
             <button
               @click="isOpen = false"
@@ -62,7 +62,7 @@
           </div>
 
           <!-- 搜索框 -->
-          <div class="mb-8 sm:hidden">
+          <div class="mb-6">
             <SearchBox />
           </div>
 
@@ -81,7 +81,7 @@
           </nav>
 
           <!-- 分隔线 -->
-          <hr class="my-8 border-slate-200 dark:border-slate-700" />
+          <hr class="my-6 border-slate-200 dark:border-slate-700" />
 
           <!-- 快捷功能 -->
           <div class="space-y-4">

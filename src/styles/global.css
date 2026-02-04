@@ -15,7 +15,15 @@
   }
 
   body {
-    @apply bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 overflow-x-hidden;
+    @apply bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300;
+  }
+
+  #app {
+    @apply w-full min-w-0;
+  }
+
+  #app > * {
+    @apply w-full min-w-0;
   }
 
   /* 提高深色模式下普通文字的对比度 */
@@ -400,7 +408,12 @@
 
 /* 回到顶部按钮 */
 .back-to-top {
-  @apply fixed bottom-8 right-8 bg-primary-500 hover:bg-primary-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-0 invisible;
+  @apply fixed bottom-5 left-1/2 -translate-x-1/2 bg-primary-500 hover:bg-primary-600 text-white h-8 rounded-full flex items-center justify-center shadow transition-all duration-300 opacity-0 invisible;
+  width: 9px;
+}
+
+.back-to-top svg {
+  @apply w-2 h-2;
 }
 
 .back-to-top.show {
@@ -410,7 +423,12 @@
 /* 移动端适配 */
 @media (max-width: 640px) {
   .back-to-top {
-    @apply bottom-6 right-6 w-10 h-10;
+    @apply bottom-4 h-7;
+    width: 8px;
+  }
+
+  .back-to-top svg {
+    @apply w-1.5 h-1.5;
   }
 }
 
