@@ -1,17 +1,17 @@
 <template>
   <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
     <!-- Tab 头部 -->
-    <div class="flex border-b border-slate-200 dark:border-slate-700">
+    <div class="flex border-b border-slate-200 dark:border-slate-700 overflow-x-auto scrollbar-hide">
       <button
         v-for="tab in tabs"
         :key="tab.id"
         @click="activeTab = tab.id"
-        class="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors"
+        class="flex-1 min-w-max flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap"
         :class="activeTab === tab.id
           ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 border-b-2 border-primary-500'
           : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50'"
       >
-        <component :is="tab.icon" class="w-4 h-4" />
+        <component :is="tab.icon" class="w-4 h-4 flex-shrink-0" />
         <span>{{ tab.name }}</span>
         <span class="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
           {{ tab.count }}
@@ -272,5 +272,15 @@ const formatArchiveDate = (year: string, month: string) => {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Hide scrollbar while allowing scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
 }
 </style>

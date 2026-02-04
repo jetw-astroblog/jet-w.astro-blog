@@ -32,7 +32,10 @@ export const siteConfig: SiteConfig = {
       href: '/about',
       icon: 'about'
     }
-  ]
+  ],
+  layout: {
+    contentWidth: 'normal'
+  }
 };
 
 export const defaultSEO = {
@@ -53,7 +56,11 @@ export function defineSiteConfig(config: Partial<SiteConfig>): SiteConfig {
       ...siteConfig.social,
       ...config.social
     },
-    menu: config.menu || siteConfig.menu
+    menu: config.menu || siteConfig.menu,
+    layout: {
+      ...siteConfig.layout,
+      ...config.layout
+    }
   };
 }
 

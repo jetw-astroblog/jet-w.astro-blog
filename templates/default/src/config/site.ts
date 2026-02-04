@@ -20,6 +20,9 @@ export const siteConfig: SiteConfig = {
     twitter: '',
     linkedin: '',
     email: 'mailto:email@example.com'
+  },    
+  layout: {
+    contentWidth: 'wide'  // 或 'narrow', '900px', '80%' 等
   },
   menu: [
     {

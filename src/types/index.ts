@@ -53,6 +53,11 @@ export interface NavigationItem {
   children?: NavigationItem[];
 }
 
+export interface LayoutConfig {
+  /** Maximum width of the content area. Can be 'narrow' (768px), 'normal' (1024px), 'wide' (1280px), 'full' (100%), or a custom value like '900px' */
+  contentWidth?: 'narrow' | 'normal' | 'wide' | 'full' | string;
+}
+
 export interface SiteConfig {
   title: string;
   description: string;
@@ -66,6 +71,8 @@ export interface SiteConfig {
     email?: string;
   };
   menu: NavigationItem[];
+  /** Layout configuration */
+  layout?: LayoutConfig;
 }
 
 export interface SEOProps {

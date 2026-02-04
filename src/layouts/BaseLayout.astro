@@ -80,10 +80,20 @@ const faviconSvgExists = fs.existsSync(path.join(publicDir, 'favicon.svg'));
 const faviconIcoExists = fs.existsSync(path.join(publicDir, 'favicon.ico'));
 const faviconHref = faviconSvgExists ? '/favicon.svg' : faviconIcoExists ? '/favicon.ico' : siteConfig.avatar;
 const faviconType = faviconSvgExists ? 'image/svg+xml' : faviconIcoExists ? 'image/x-icon' : 'image/jpeg';
+
+// Get content width configuration
+const contentWidthConfig = siteConfig.layout?.contentWidth || 'normal';
+const contentWidthMap: Record<string, string> = {
+  'narrow': '768px',
+  'normal': '1024px',
+  'wide': '1280px',
+  'full': '100%',
+};
+const contentMaxWidth = contentWidthMap[contentWidthConfig] || contentWidthConfig;
 ---
 
 <!DOCTYPE html>
-<html lang={localeData.htmlLang} dir={getTextDirection(currentLocale, i18nConfig)} class="scroll-smooth">
+<html lang={localeData.htmlLang} dir={getTextDirection(currentLocale, i18nConfig)} class="scroll-smooth" style={`--content-max-width: ${contentMaxWidth};`}>
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
