@@ -172,7 +172,7 @@ export function buildTreeFromPosts(
         const folderPath = scanPath ? `${scanPath}/${pathParts.slice(0, index + 1).join('/')}` : pathParts.slice(0, index + 1).join('/');
         const newNode: TreeNode = {
           name: part,
-          slug: isLast ? post.id : undefined,
+          slug: isLast ? post.id : folderPath.toLowerCase(),  // 文件夹使用路径作为 slug
           title: isLast ? post.data.title : undefined,
           displayName: isLast ? post.data.title : folderTitles[folderPath],
           icon: isLast ? post.data.icon : folderIcons[folderPath],
