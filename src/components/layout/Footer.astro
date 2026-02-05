@@ -45,6 +45,28 @@ const rssUrl = configRssUrl
 const copyright = (localeFooterConfig.copyright || footerConfig.copyright)
   .replace('{year}', String(currentYear))
   .replace('{author}', localeSiteConfig.author || siteConfig.author);
+
+// Helper function to get localized URL for navigation
+// Checks if path already contains a locale prefix to avoid double prefixing
+function getLocalizedUrl(path: string): string {
+  // Check if path already starts with any locale prefix
+  const hasLocalePrefix = i18nConfig.locales.some(locale =>
+    path === `/${locale.code}` ||
+    path === `/${locale.code}/` ||
+    path.startsWith(`/${locale.code}/`)
+  );
+
+  // If path already has locale prefix, just add base URL if needed
+  if (hasLocalePrefix) {
+    return withBase(path, base);
+  }
+
+  // Otherwise add locale prefix
+  if (path === '/') {
+    return localePrefix ? `${localePrefix}/` : '/';
+  }
+  return `${localePrefix}${path}`;
+}
 ---
 
 <footer class="bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 mt-auto w-full min-w-0">
@@ -77,7 +99,7 @@ const copyright = (localeFooterConfig.copyright || footerConfig.copyright)
         <div class="flex flex-wrap gap-x-4 gap-y-1">
           {(localeFooterConfig.quickLinks || footerConfig.quickLinks).map((item) => (
             <a
-              href={withBase(item.href, base)}
+              href={getLocalizedUrl(item.href)}
               class="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors"
             >
               {item.name}

@@ -14,6 +14,7 @@ import {
   removeBase,
   isMultiLanguageEnabled,
   withBase,
+  getLocalePrefix,
 } from '../../utils/i18n';
 
 export interface Props {
@@ -50,6 +51,31 @@ const localesForSwitcher = i18nConfig.locales.map(l => ({
   code: l.code,
   name: l.name,
 }));
+
+// Get locale prefix for navigation links (includes base URL)
+const localePrefix = getLocalePrefix(currentLocale, i18nConfig, base);
+
+// Helper function to get localized URL for navigation
+// Checks if path already contains a locale prefix to avoid double prefixing
+function getLocalizedUrl(path: string): string {
+  // Check if path already starts with any locale prefix
+  const hasLocalePrefix = i18nConfig.locales.some(locale =>
+    path === `/${locale.code}` ||
+    path === `/${locale.code}/` ||
+    path.startsWith(`/${locale.code}/`)
+  );
+
+  // If path already has locale prefix, just add base URL if needed
+  if (hasLocalePrefix) {
+    return withBase(path, base);
+  }
+
+  // Otherwise add locale prefix
+  if (path === '/') {
+    return localePrefix ? `${localePrefix}/` : '/';
+  }
+  return `${localePrefix}${path}`;
+}
 ---
 
 <header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 w-full">
@@ -57,7 +83,7 @@ const localesForSwitcher = i18nConfig.locales.map(l => ({
     <nav class="relative flex items-center justify-between h-16">
       <!-- 左侧：图标和标题 -->
       <div class="flex items-center space-x-4">
-        <a href={withBase('/', base)} class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+        <a href={getLocalizedUrl('/')} class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
           {(localeSiteConfig.avatar || siteConfig.avatar) && (
             <img
               src={withBase(localeSiteConfig.avatar || siteConfig.avatar || '', base)}
@@ -81,18 +107,21 @@ const localesForSwitcher = i18nConfig.locales.map(l => ({
       <!-- 中间：导航菜单（桌面端显示） -->
       <div class="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <div class="flex items-center space-x-8">
-          {menu.map((item) => (
-            <a
-              href={withBase(item.href, base)}
-              class={`text-sm font-medium transition-colors hover:text-primary-500 ${
-                currentPath === withBase(item.href, base) || (item.href !== '/' && currentPath.startsWith(withBase(item.href, base)))
-                  ? 'text-primary-500'
-                  : 'text-slate-700 dark:text-slate-300'
-              }`}
-            >
-              {item.name}
-            </a>
-          ))}
+          {menu.map((item) => {
+            const localizedHref = getLocalizedUrl(item.href);
+            return (
+              <a
+                href={localizedHref}
+                class={`text-sm font-medium transition-colors hover:text-primary-500 ${
+                  currentPath === localizedHref || (item.href !== '/' && currentPath.startsWith(localizedHref))
+                    ? 'text-primary-500'
+                    : 'text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                {item.name}
+              </a>
+            );
+          })}
         </div>
       </div>
 

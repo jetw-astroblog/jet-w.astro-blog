@@ -71,7 +71,7 @@
             <a
               v-for="item in navigation"
               :key="item.href"
-              :href="withBase(item.href)"
+              :href="getLocalizedNavUrl(item.href)"
               @click="isOpen = false"
               class="flex items-center px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               :class="{ 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400': isActive(item.href) }"
@@ -193,6 +193,41 @@ function getLocalizedUrl(targetLocale: string): string {
 
   return `${baseUrl}${localePrefix}${pagePath}`;
 }
+
+// Get localized URL for navigation links (preserves current locale)
+// Checks if path already contains a locale prefix to avoid double prefixing
+function getLocalizedNavUrl(path: string): string {
+  const baseUrl = props.base?.replace(/\/$/, '') || '';
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+  // Check if path already starts with any locale prefix
+  const hasLocalePrefix = props.locales.some(locale =>
+    normalizedPath === `/${locale.code}` ||
+    normalizedPath === `/${locale.code}/` ||
+    normalizedPath.startsWith(`/${locale.code}/`)
+  );
+
+  // If path already has locale prefix, just add base URL if needed
+  if (hasLocalePrefix) {
+    return baseUrl ? `${baseUrl}${normalizedPath}` : normalizedPath;
+  }
+
+  // Build locale prefix based on current locale
+  let localePrefix = '';
+  if (props.currentLocale && (props.currentLocale !== props.defaultLocale || props.prefixDefaultLocale)) {
+    localePrefix = `/${props.currentLocale}`;
+  }
+
+  if (normalizedPath === '/') {
+    if (localePrefix) {
+      return baseUrl ? `${baseUrl}${localePrefix}/` : `${localePrefix}/`;
+    }
+    return baseUrl ? `${baseUrl}/` : '/';
+  }
+
+  return `${baseUrl}${localePrefix}${normalizedPath}`;
+}
+
 const isOpen = ref(false)
 const currentPath = ref('')
 const isMounted = ref(false)
