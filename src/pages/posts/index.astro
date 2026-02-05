@@ -175,6 +175,73 @@ const buildTree = () => {
 
 const postTree = buildTree();
 
+// 递归计算文件夹中的文章数量
+function countItems(node: TreeNode): number {
+  if (!node.isFolder) return 1;
+  return node.children.reduce((sum, child) => sum + countItems(child), 0);
+}
+
+// 递归渲染树节点
+function renderTreeNode(node: TreeNode, depth: number, localePrefix: string, formatDate: (date?: Date) => string): string {
+  if (node.isFolder) {
+    const itemCount = countItems(node);
+    const childrenHtml = node.children.map(child => renderTreeNode(child, depth + 1, localePrefix, formatDate)).join('');
+
+    return `
+      <div class="tree-node" data-depth="${depth}">
+        <div class="folder-node">
+          <button class="folder-toggle w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
+            <svg class="folder-chevron w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+            <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M10 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2h-8l-2-2z" />
+            </svg>
+            <span class="font-medium text-slate-900 dark:text-slate-100">${escapeHtml(node.title || node.name)}</span>
+            <span class="text-xs text-slate-400 ml-auto">${itemCount} 篇</span>
+          </button>
+          <div class="folder-children hidden pl-6">
+            ${childrenHtml}
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    const dateHtml = node.pubDate ? `<time class="text-xs text-slate-400 flex-shrink-0">${formatDate(node.pubDate)}</time>` : '';
+    const descHtml = node.description ? `<p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">${escapeHtml(node.description)}</p>` : '';
+
+    return `
+      <div class="tree-node" data-depth="${depth}">
+        <a
+          href="${localePrefix}/posts/${node.slug}"
+          class="flex items-start gap-4 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700 group"
+        >
+          <svg class="w-4 h-4 text-slate-400 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-medium text-slate-900 dark:text-slate-100 group-hover:text-primary-500 transition-colors">${escapeHtml(node.title || node.name)}</h4>
+            ${descHtml}
+          </div>
+          ${dateHtml}
+        </a>
+      </div>
+    `;
+  }
+}
+
+// HTML 转义函数
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, m => map[m] || m);
+}
+
 // 分页逻辑
 const currentPage = 1;
 const postsPerPage = 10;
@@ -346,101 +413,50 @@ const formatDateLocal = (date?: Date) => {
   <div id="list-view" class="view-container hidden">
     {postTree.length > 0 ? (
       <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden mb-12">
-        <div class="post-tree">
+        <div class="post-tree" data-locale-prefix={localePrefix}>
           {postTree.map((node) => (
-            <div class="tree-node">
-              {node.isFolder ? (
-                <div class="folder-node">
-                  <button class="folder-toggle w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
-                    <svg class="folder-chevron w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                    <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M10 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2h-8l-2-2z" />
-                    </svg>
-                    <span class="font-medium text-slate-900 dark:text-slate-100">{node.title || node.name}</span>
-                    <span class="text-xs text-slate-400 ml-auto">{node.children.length} 篇</span>
-                  </button>
-                  <div class="folder-children hidden">
-                    {node.children.map((child) => (
-                      <div class="tree-node">
-                        {child.isFolder ? (
-                          <div class="folder-node ml-6">
-                            <button class="folder-toggle w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
-                              <svg class="folder-chevron w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                              </svg>
-                              <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M10 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2h-8l-2-2z" />
-                              </svg>
-                              <span class="font-medium text-slate-900 dark:text-slate-100">{child.title || child.name}</span>
-                              <span class="text-xs text-slate-400 ml-auto">{child.children.length} 篇</span>
-                            </button>
-                            <div class="folder-children hidden">
-                              {child.children.map((grandChild) => (
-                                <a
-                                  href={`${localePrefix}/posts/${grandChild.slug}`}
-                                  class="ml-12 flex items-start gap-4 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700 group"
-                                >
-                                  <svg class="w-4 h-4 text-slate-400 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                  </svg>
-                                  <div class="flex-1 min-w-0">
-                                    <h4 class="font-medium text-slate-900 dark:text-slate-100 group-hover:text-primary-500 transition-colors">{grandChild.title || grandChild.name}</h4>
-                                    {grandChild.description && (
-                                      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">{grandChild.description}</p>
-                                    )}
-                                  </div>
-                                  {grandChild.pubDate && (
-                                    <time class="text-xs text-slate-400 flex-shrink-0">{formatDateLocal(grandChild.pubDate)}</time>
-                                  )}
-                                </a>
-                              ))}
-                            </div>
-                          </div>
-                        ) : (
-                          <a
-                            href={`${localePrefix}/posts/${child.slug}`}
-                            class="ml-6 flex items-start gap-4 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700 group"
-                          >
-                            <svg class="w-4 h-4 text-slate-400 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <div class="flex-1 min-w-0">
-                              <h4 class="font-medium text-slate-900 dark:text-slate-100 group-hover:text-primary-500 transition-colors">{child.title || child.name}</h4>
-                              {child.description && (
-                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">{child.description}</p>
-                              )}
-                            </div>
-                            {child.pubDate && (
-                              <time class="text-xs text-slate-400 flex-shrink-0">{formatDateLocal(child.pubDate)}</time>
-                            )}
-                          </a>
-                        )}
-                      </div>
-                    ))}
+            <Fragment>
+              {Astro.self && null}
+              <div class="tree-node" data-depth="0">
+                {node.isFolder ? (
+                  <div class="folder-node">
+                    <button class="folder-toggle w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
+                      <svg class="folder-chevron w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                      <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2h-8l-2-2z" />
+                      </svg>
+                      <span class="font-medium text-slate-900 dark:text-slate-100">{node.title || node.name}</span>
+                      <span class="text-xs text-slate-400 ml-auto">{countItems(node)} 篇</span>
+                    </button>
+                    <div class="folder-children hidden pl-6">
+                      {node.children.map((child) => (
+                        <Fragment set:html={renderTreeNode(child, 1, localePrefix, formatDateLocal)} />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <a
-                  href={`${localePrefix}/posts/${node.slug}`}
-                  class="flex items-start gap-4 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700 group"
-                >
-                  <svg class="w-4 h-4 text-slate-400 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <div class="flex-1 min-w-0">
-                    <h4 class="font-medium text-slate-900 dark:text-slate-100 group-hover:text-primary-500 transition-colors">{node.title || node.name}</h4>
-                    {node.description && (
-                      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">{node.description}</p>
+                ) : (
+                  <a
+                    href={`${localePrefix}/posts/${node.slug}`}
+                    class="flex items-start gap-4 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700 group"
+                  >
+                    <svg class="w-4 h-4 text-slate-400 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <div class="flex-1 min-w-0">
+                      <h4 class="font-medium text-slate-900 dark:text-slate-100 group-hover:text-primary-500 transition-colors">{node.title || node.name}</h4>
+                      {node.description && (
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">{node.description}</p>
+                      )}
+                    </div>
+                    {node.pubDate && (
+                      <time class="text-xs text-slate-400 flex-shrink-0">{formatDateLocal(node.pubDate)}</time>
                     )}
-                  </div>
-                  {node.pubDate && (
-                    <time class="text-xs text-slate-400 flex-shrink-0">{formatDateLocal(node.pubDate)}</time>
-                  )}
-                </a>
-              )}
-            </div>
+                  </a>
+                )}
+              </div>
+            </Fragment>
           ))}
         </div>
       </div>
@@ -538,24 +554,43 @@ const formatDateLocal = (date?: Date) => {
       }
     }
 
-    // 文件夹展开/收起
-    const folderToggles = document.querySelectorAll('.folder-toggle');
-    folderToggles.forEach(toggle => {
-      toggle.addEventListener('click', () => {
-        const children = toggle.nextElementSibling;
-        const isExpanded = toggle.classList.toggle('expanded');
+    // 文件夹展开/收起 - 使用事件委托处理动态生成的内容
+    const postTree = document.querySelector('.post-tree');
+    if (postTree) {
+      postTree.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const toggle = target.closest('.folder-toggle') as HTMLElement;
 
-        if (children && children.classList.contains('folder-children')) {
-          children.classList.toggle('show', isExpanded);
+        if (toggle) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const children = toggle.nextElementSibling;
+          const isExpanded = toggle.classList.toggle('expanded');
+
+          if (children && children.classList.contains('folder-children')) {
+            if (isExpanded) {
+              children.classList.remove('hidden');
+              children.classList.add('show');
+            } else {
+              children.classList.add('hidden');
+              children.classList.remove('show');
+            }
+          }
         }
       });
-    });
+    }
 
     // 默认展开第一层文件夹
     const firstLevelToggles = document.querySelectorAll('.post-tree > .tree-node > .folder-node > .folder-toggle');
     firstLevelToggles.forEach(toggle => {
       if (!toggle.classList.contains('expanded')) {
-        (toggle as HTMLElement).click();
+        const children = toggle.nextElementSibling;
+        toggle.classList.add('expanded');
+        if (children && children.classList.contains('folder-children')) {
+          children.classList.remove('hidden');
+          children.classList.add('show');
+        }
       }
     });
   }
