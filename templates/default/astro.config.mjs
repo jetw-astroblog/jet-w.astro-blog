@@ -47,7 +47,19 @@ const i18nConfig = defineI18nConfig({
 // https://astro.build/config
 export default defineConfig({
   integrations: [
-    astroBlog({ i18n: i18nConfig }),
+    astroBlog({ 
+      i18n: i18nConfig,
+      customAssets: {
+        assets: [
+          // Load external CSS
+          // { type: 'css', src: 'https://example.com/custom.css' },
+
+          // Load external JS
+          { type: 'js', src: 'https://www.googletagmanager.com/gtag/js?id=G-L2EB5H008X', async: true },
+          { type: 'js', src: 'google_analytics.js'},
+        ]
+      }
+    }),
     vue(),
     mdx(),
     tailwind({
